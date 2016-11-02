@@ -42,15 +42,18 @@ public class Tucil2AI {
     
      /**
      * @param filename
+     * @param f
      * @return 
      * @throws java.lang.Exception
      */
-    protected static Instances loadfile(String filename) throws Exception{
+    protected static Instances loadfile(String filename, Discretize f) throws Exception{
         DataSource source = new DataSource(filename);
         Instances data;
         data = source.getDataSet();
         data.setClassIndex(data.numAttributes() - 1);
-        return data;
+  
+        Instances data_filtered = Filter.useFilter(data, f);
+        return data_filtered;
     }
     /**
      *
@@ -82,6 +85,25 @@ public class Tucil2AI {
         System.out.println(E.toClassDetailsString());
         System.out.println(E.toMatrixString());
     }
+    
+    /**
+     *
+     * @param cls
+     * @param filename
+     * @param f
+     * @throws Exception
+     */
+    public static void ClassifyJ48(Classifier cls, String filename, Discretize f) throws Exception{
+        Instances unlabeled = loadfile(filename, f);
+        Instances labeled = new Instances(unlabeled);
+        for (int i = 0;i < unlabeled.numInstances(); ++i){
+            double clsLabel = cls.classifyInstance(unlabeled.instance(i));
+            labeled.instance(i).setClassValue(clsLabel);
+        }
+        
+        System.out.println(labeled.toString());
+    }
+    
     /**
      *
      * @param args
@@ -109,7 +131,11 @@ public class Tucil2AI {
         //Evaluation with J48 Decision Tree
         Evaluation eval = evalJ48(clsJ48, data_filtered, false);
         printEval(eval);
+        
+        /*
         File directory = new File(".");
         System.out.println(directory.getCanonicalPath());
+        */
+        ClassifyJ48(clsJ48, "res/datatest.arff", filter);
     }
 }
