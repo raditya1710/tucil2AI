@@ -106,7 +106,10 @@ public class Tucil2AI {
     }
     
     public static void menu(){
-        
+        System.out.println("Apa yang mau anda lakukan:");
+        System.out.println("1. Load model");
+        System.out.println("2. Pelajari dataset");
+        System.out.println("3. Exit");
     }
     
     /**
@@ -120,78 +123,58 @@ public class Tucil2AI {
         Instances data;
         Instances data_filtered;
         Discretize filter;
-        Classifier clsJ48;
-        filter = new Discretize();
-            
+        Classifier clsJ48 = null;
         
-        int pil;
-        System.out.println("Apa yang mau anda lakukan:");
-        System.out.println("1. Load model");
-        System.out.println("2. Pelajari dataset");
-        System.out.println("3. Exit");
-        Scanner sc = new Scanner(System.in);
-        pil = sc.nextInt();
-        if (pil==1){
-            clsJ48 = loadModel();
-            /*
-            File directory = new File(".");
-            System.out.println(directory.getCanonicalPath());
-            */
-            ClassifyJ48(clsJ48, "res/datatest.arff", filter);      
-            
-        }
-        if (pil==2){
-            // input files
-            source = new DataSource("res/iris.arff");
-            data = source.getDataSet();
-            data.setClassIndex(data.numAttributes() - 1);
-
-            // filter
-            filter.setInputFormat(data);
-            data_filtered = Filter.useFilter(data, filter);
-
-            clsJ48 = new J48();
-            clsJ48.buildClassifier(data_filtered);
-            
-            int pil2;
+        
+        source = new DataSource("res/iris.arff");
+        data = source.getDataSet();
+        data.setClassIndex(data.numAttributes() - 1);
+        // filter
+        filter = new Discretize();
+        filter.setInputFormat(data);
+        data_filtered = Filter.useFilter(data, filter);
+        
+        int pil = 0;
+        while(pil != 3){
+            menu();
+            Scanner sc = new Scanner(System.in);
+            pil = sc.nextInt();
+            switch (pil) {
+                case 1:
+                    clsJ48 = loadModel();
+                    break;
+                case 2:
+                    clsJ48 = new J48();
+                    clsJ48.buildClassifier(data_filtered);
+                       int pil3;
+                    System.out.println("Apakah yang mau Anda lakukan dengan model ini?");
+                    System.out.println("1. Save model");
+                    System.out.println("2. Klasifikasikan datatest");
+                    pil3 = sc.nextInt();
+                    if (pil3==1){
+                        saveModel(clsJ48);
+                    }
+                    
+                    else if (pil3==2){
+                        ClassifyJ48(clsJ48, "res/datatest.arff", filter);
+                    }   break;
+                default:
+                    break;
+            }
+            if(pil == 3) continue;
             System.out.println("Pilih metode pembelajaran:");
             System.out.println("1. 10-fold cross validation");
             System.out.println("2. Full-test");
-            pil2 = sc.nextInt();
             
-            if (pil2==1){
-                //Evaluation with J48 Decision Tree
-                Evaluation eval = evalJ48(clsJ48, data_filtered, true);
-                printEval(eval);
+            int pilmethod;
+            pilmethod = sc.nextInt();
+            while(pilmethod < 1 || pilmethod > 2){
+                System.out.println("Masukan salah!"); pilmethod = sc.nextInt();
             }
-            
-            if (pil2==2){
-                //Evaluation with J48 Decision Tree
-                Evaluation eval = evalJ48(clsJ48, data_filtered, false);
-                printEval(eval);
-            }
-            
-            int pil3;
-            System.out.println("Apakah yang mau Anda lakukan dengan model ini?");
-            System.out.println("1. Save model");
-            System.out.println("2. Klasifikasikan datatest");
-            pil3 = sc.nextInt();
-            
-            if (pil3==1){
-               saveModel(clsJ48); 
-            }
-            
-            if (pil3==2){
-                /*
-                File directory = new File(".");
-                System.out.println(directory.getCanonicalPath());
-                */
-                ClassifyJ48(clsJ48, "res/datatest.arff", filter);      
-            }
-        }
-        
-        
-        
+                
+            Evaluation eval = evalJ48(clsJ48, data_filtered, pilmethod == 1);
+            printEval(eval);
+        } 
         
     }
 }
