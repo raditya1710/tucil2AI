@@ -13,19 +13,38 @@ import weka.classifiers.Evaluation;
 import weka.classifiers.trees.J48;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.Discretize;
-
+import weka.core.SerializationHelper;
 /**
  *
  * @author t420s
  */
 
 public class Tucil2AI {
+    
     /**
+     *
+     * @param cls
+     * @throws Exception
+     */
+    protected static void saveModel(Classifier cls) throws Exception{
+         weka.core.SerializationHelper.write("tucilAI2j48.model", cls);
+    }
+    
+    /**
+     *
+     * @return
+     * @throws Exception
+     */
+    protected static Classifier loadModel() throws Exception{
+        return (Classifier) weka.core.SerializationHelper.read("tucilAI2j48.model");
+    }
+    
+     /**
      * @param filename
      * @return 
      * @throws java.lang.Exception
      */
-    protected static Instances load(String filename) throws Exception{
+    protected static Instances loadfile(String filename) throws Exception{
         DataSource source = new DataSource(filename);
         Instances data;
         data = source.getDataSet();
@@ -34,21 +53,20 @@ public class Tucil2AI {
     }
     /**
      *
+     * @param cls
      * @param data
      * @param cross
      * @return
      * @throws Exception
      */
-    protected static Evaluation evalJ48(Instances data, boolean cross) throws Exception{
+    protected static Evaluation evalJ48(Classifier cls, Instances data, boolean cross) throws Exception{
         Evaluation E;
         E = new Evaluation(data);
         if(cross == false){
-            Classifier clsJ48 = new J48();
-            clsJ48.buildClassifier(data);
-            E.evaluateModel(clsJ48, data);
+            E.evaluateModel(cls, data);
         }
         else{
-            E.crossValidateModel(new J48(), data, 10, new Random(0x1)); /*crossValidateModel*/
+            E.crossValidateModel(cls, data, 10, new Random(0x100)); /*crossValidateModel*/
         }
         return E;
     }
@@ -84,10 +102,11 @@ public class Tucil2AI {
         filter = new Discretize();
         filter.setInputFormat(data);
         data_filtered = Filter.useFilter(data, filter);
-        
+       
+        Classifier clsJ48 = new J48();
+        clsJ48.buildClassifier(data_filtered);
         //Evaluation with J48 Decision Tree
-        Evaluation eval = evalJ48(data_filtered, true);
-        
+        Evaluation eval = evalJ48(clsJ48, data_filtered, false);
         printEval(eval);
     }
 }
