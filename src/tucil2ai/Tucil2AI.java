@@ -129,10 +129,12 @@ public class Tucil2AI {
         source = new DataSource("res/iris.arff");
         data = source.getDataSet();
         data.setClassIndex(data.numAttributes() - 1);
+        System.out.println("Data berhasil dibaca");
         // filter
         filter = new Discretize();
         filter.setInputFormat(data);
         data_filtered = Filter.useFilter(data, filter);
+        System.out.println("Data berhasil difilter");
         
         int pil = 0;
         while(pil != 3){
@@ -142,39 +144,42 @@ public class Tucil2AI {
             switch (pil) {
                 case 1:
                     clsJ48 = loadModel();
+                    System.out.println("Model berhasil dimuat");
                     break;
                 case 2:
                     clsJ48 = new J48();
                     clsJ48.buildClassifier(data_filtered);
                        int pil3;
-                    System.out.println("Apakah yang mau Anda lakukan dengan model ini?");
-                    System.out.println("1. Save model");
-                    System.out.println("2. Klasifikasikan datatest");
+                    System.out.println("Apakah Anda mau menyimpan model ini?");
+                    System.out.println("1. Ya");
+                    System.out.println("2. Tidak");
                     pil3 = sc.nextInt();
                     if (pil3==1){
                         saveModel(clsJ48);
                     }
-                    
-                    else if (pil3==2){
-                        ClassifyJ48(clsJ48, "res/datatest.arff", filter);
-                    }   break;
+                    break;
                 default:
                     break;
             }
             if(pil == 3) continue;
-            System.out.println("Pilih metode pembelajaran:");
+            System.out.println("Pilih metode evaluasi:");
             System.out.println("1. 10-fold cross validation");
             System.out.println("2. Full-test");
+            System.out.println("3. Klasifikasikan datatest");
             
             int pilmethod;
             pilmethod = sc.nextInt();
-            while(pilmethod < 1 || pilmethod > 2){
+            while(pilmethod < 1 || pilmethod > 3){
                 System.out.println("Masukan salah!"); pilmethod = sc.nextInt();
             }
-                
-            Evaluation eval = evalJ48(clsJ48, data_filtered, pilmethod == 1);
-            printEval(eval);
-        } 
-        
+            if(pilmethod != 3){
+                Evaluation eval = evalJ48(clsJ48, data_filtered, pilmethod == 1);
+                printEval(eval);
+            }
+            else{
+                ClassifyJ48(clsJ48, "res/datatest.arff", filter);
+                System.out.println("Terbentuk 3 instance baru untuk diklasifikasi");
+            }
+        }
     }
 }
