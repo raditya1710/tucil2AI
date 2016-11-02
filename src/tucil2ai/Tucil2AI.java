@@ -7,6 +7,7 @@
 package tucil2ai;
 import java.io.File;
 import java.util.Random;
+import java.util.Scanner;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
 import weka.classifiers.Classifier;
@@ -104,6 +105,10 @@ public class Tucil2AI {
         System.out.println(labeled.toString());
     }
     
+    public static void menu(){
+        
+    }
+    
     /**
      *
      * @param args
@@ -115,27 +120,78 @@ public class Tucil2AI {
         Instances data;
         Instances data_filtered;
         Discretize filter;
-        
-        // input files
-        source = new DataSource("res/iris.arff");
-        data = source.getDataSet();
-        data.setClassIndex(data.numAttributes() - 1);
-        
-        // filter
+        Classifier clsJ48;
         filter = new Discretize();
-        filter.setInputFormat(data);
-        data_filtered = Filter.useFilter(data, filter);
-       
-        Classifier clsJ48 = new J48();
-        clsJ48.buildClassifier(data_filtered);
-        //Evaluation with J48 Decision Tree
-        Evaluation eval = evalJ48(clsJ48, data_filtered, false);
-        printEval(eval);
+            
         
-        /*
-        File directory = new File(".");
-        System.out.println(directory.getCanonicalPath());
-        */
-        ClassifyJ48(clsJ48, "res/datatest.arff", filter);
+        int pil;
+        System.out.println("Apa yang mau anda lakukan:");
+        System.out.println("1. Load model");
+        System.out.println("2. Pelajari dataset");
+        System.out.println("3. Exit");
+        Scanner sc = new Scanner(System.in);
+        pil = sc.nextInt();
+        if (pil==1){
+            clsJ48 = loadModel();
+            /*
+            File directory = new File(".");
+            System.out.println(directory.getCanonicalPath());
+            */
+            ClassifyJ48(clsJ48, "res/datatest.arff", filter);      
+            
+        }
+        if (pil==2){
+            // input files
+            source = new DataSource("res/iris.arff");
+            data = source.getDataSet();
+            data.setClassIndex(data.numAttributes() - 1);
+
+            // filter
+            filter.setInputFormat(data);
+            data_filtered = Filter.useFilter(data, filter);
+
+            clsJ48 = new J48();
+            clsJ48.buildClassifier(data_filtered);
+            
+            int pil2;
+            System.out.println("Pilih metode pembelajaran:");
+            System.out.println("1. 10-fold cross validation");
+            System.out.println("2. Full-test");
+            pil2 = sc.nextInt();
+            
+            if (pil2==1){
+                //Evaluation with J48 Decision Tree
+                Evaluation eval = evalJ48(clsJ48, data_filtered, true);
+                printEval(eval);
+            }
+            
+            if (pil2==2){
+                //Evaluation with J48 Decision Tree
+                Evaluation eval = evalJ48(clsJ48, data_filtered, false);
+                printEval(eval);
+            }
+            
+            int pil3;
+            System.out.println("Apakah yang mau Anda lakukan dengan model ini?");
+            System.out.println("1. Save model");
+            System.out.println("2. Klasifikasikan datatest");
+            pil3 = sc.nextInt();
+            
+            if (pil3==1){
+               saveModel(clsJ48); 
+            }
+            
+            if (pil3==2){
+                /*
+                File directory = new File(".");
+                System.out.println(directory.getCanonicalPath());
+                */
+                ClassifyJ48(clsJ48, "res/datatest.arff", filter);      
+            }
+        }
+        
+        
+        
+        
     }
 }
