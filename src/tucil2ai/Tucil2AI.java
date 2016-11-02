@@ -5,6 +5,7 @@
  */
 
 package tucil2ai;
+import static java.lang.Math.random;
 import java.util.Random;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
@@ -55,6 +56,7 @@ public class Tucil2AI {
         Instances data;
         Instances data_filtered;
         Discretize filter;
+        Random rand = new Random();
         source = new DataSource("C:/Program Files/Weka-3-8/data/iris.arff");
         data = source.getDataSet();
         data.setClassIndex(data.numAttributes() - 1);
@@ -71,11 +73,11 @@ public class Tucil2AI {
         Classifier clsJ48 = new J48();
         clsJ48.buildClassifier(data_filtered);
         Evaluation evalJ48 = new Evaluation(data_filtered);
-        
-        evalJ48.evaluateModel(clsJ48, data_filtered);
-        
+        //evalJ48.evaluateModel(clsJ48, data_filtered);
+        evalJ48.crossValidateModel(new J48(), data_filtered, 10, new Random(0xa)); /*crossValidateModel*/
         
         System.out.println(evalJ48.toSummaryString("\nResults\n======\n", false));
-        
+        System.out.println(evalJ48.toClassDetailsString());
+        System.out.println(evalJ48.toMatrixString());
     }
 }
