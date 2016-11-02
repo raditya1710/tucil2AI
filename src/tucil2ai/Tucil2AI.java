@@ -5,6 +5,7 @@
  */
 
 package tucil2ai;
+import java.io.File;
 import java.util.Random;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
@@ -27,7 +28,7 @@ public class Tucil2AI {
      * @throws Exception
      */
     protected static void saveModel(Classifier cls) throws Exception{
-         weka.core.SerializationHelper.write("tucilAI2j48.model", cls);
+         weka.core.SerializationHelper.write("res/tucilAI2j48.model", cls);
     }
     
     /**
@@ -36,7 +37,7 @@ public class Tucil2AI {
      * @throws Exception
      */
     protected static Classifier loadModel() throws Exception{
-        return (Classifier) weka.core.SerializationHelper.read("tucilAI2j48.model");
+        return (Classifier) weka.core.SerializationHelper.read("res/tucilAI2j48.model");
     }
     
      /**
@@ -94,7 +95,7 @@ public class Tucil2AI {
         Discretize filter;
         
         // input files
-        source = new DataSource("C:/Program Files/Weka-3-8/data/iris.arff");
+        source = new DataSource("res/iris.arff");
         data = source.getDataSet();
         data.setClassIndex(data.numAttributes() - 1);
         
@@ -108,5 +109,7 @@ public class Tucil2AI {
         //Evaluation with J48 Decision Tree
         Evaluation eval = evalJ48(clsJ48, data_filtered, false);
         printEval(eval);
+        File directory = new File(".");
+        System.out.println(directory.getCanonicalPath());
     }
 }
